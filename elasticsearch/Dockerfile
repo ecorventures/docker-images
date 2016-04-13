@@ -7,11 +7,12 @@ ENV ELASTICSEARCH_VERSION 2.3.1
 ENV ELASTICSEARCH_PKG $PKG_NAME-$ELASTICSEARCH_VERSION
 ENV ELASTICSEARCH_URL https://download.elasticsearch.org/$PKG_NAME/release/org/$PKG_NAME/distribution/tar/$PKG_NAME/$ELASTICSEARCH_VERSION/$ELASTICSEARCH_PKG.tar.gz
 
-# ADD $ELASTICSEARCH_URL /tmp/$ELASTICSEARCH_PKG.tar.gz
+COPY config ./config
+COPY entrypoint.sh /
 
 # Download Elasticsearch
-RUN apk add -U curl \
-    && mkdir -p /opt \
+RUN echo "@testing http://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && apk add -U curl gosu@testing \
     && curl -o $ELASTICSEARCH_PKG.tar.gz -sSL https://download.elasticsearch.org/$PKG_NAME/release/org/$PKG_NAME/distribution/tar/$PKG_NAME/$ELASTICSEARCH_VERSION/$ELASTICSEARCH_PKG.tar.gz \
     && tar -xzf $ELASTICSEARCH_PKG.tar.gz \
     && rm $ELASTICSEARCH_PKG.tar.gz \
@@ -20,17 +21,15 @@ RUN apk add -U curl \
     && mkdir -p /usr/share/elasticsearch/data /usr/share/elasticsearch/logs /usr/share/elasticsearch/config/scripts \
     && adduser -DH -s /sbin/nologin elasticsearch \
     && chown -R elasticsearch:elasticsearch /usr/share/elasticsearch \
+    && chmod +x /entrypoint.sh \
     && apk del curl \
     && rm -rf /var/cache/apk/*
 
-ENV PATH /usr/share/elasticsearch/bin:$PATH
+ENV PATH /usr/share/elasticsearch/$ELASTICSEARCH_PKG/bin:$PATH
 
 WORKDIR /usr/share/elasticsearch
 
 VOLUME /usr/share/elasticsearch/data
-
-COPY config ./config
-COPY entrypoint.sh /
 
 EXPOSE 9200 9300
 ENTRYPOINT ["/entrypoint.sh"]
