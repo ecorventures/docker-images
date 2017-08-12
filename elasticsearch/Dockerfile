@@ -13,7 +13,7 @@ COPY entrypoint.sh /
 # Download Elasticsearch
 RUN echo "@testing http://dl-4.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk add -U curl gosu@testing \
-    && curl -o $ELASTICSEARCH_PKG.tar.gz -sSL https://download.elasticsearch.org/$PKG_NAME/release/org/$PKG_NAME/distribution/tar/$PKG_NAME/$ELASTICSEARCH_VERSION/$ELASTICSEARCH_PKG.tar.gz \
+    && curl -o $ELASTICSEARCH_PKG.tar.gz -sSL https://artifacts.elastic.co/downloads/elasticsearch/$ELASTICSEARCH_PKG.tar.gz \
     && tar -xzf $ELASTICSEARCH_PKG.tar.gz \
     && rm $ELASTICSEARCH_PKG.tar.gz \
     && mkdir -p /usr/share/elasticsearch \
